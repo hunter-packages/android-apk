@@ -276,6 +276,13 @@ function(android_create_apk)
     message(FATAL_ERROR "Target not exists: ${apk_NAME}")
   endif()
 
+  # Remove library postfix.
+  # E.g. debug version have the same name for LoadLibrary
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" upper_build_type)
+  set_target_properties(
+      "${apk_NAME}" PROPERTIES "${upper_build_type}_POSTFIX" ""
+  )
+
   if(NOT ANDROID_APK_CREATE)
     return()
   endif()
