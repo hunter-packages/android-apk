@@ -589,7 +589,10 @@ function(android_add_test)
   list(REMOVE_AT x_COMMAND 0)
   set(APP_ARGUMENTS ${x_COMMAND})
 
-  set(APP_DESTINATION "/data/bin/${PROJECT_NAME}/AndroidTest/${app_target}")
+  set(
+      APP_DESTINATION
+      "/data/bin/${PROJECT_NAME}/AndroidTest/${x_NAME}/${app_target}"
+  )
 
   # Use:
   # * ADB_COMMAND
