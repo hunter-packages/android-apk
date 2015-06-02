@@ -1,0 +1,47 @@
+# Copyright (c) 2015, Ruslan Baratov
+# All rights reserved.
+
+string(COMPARE EQUAL "@ADB_COMMAND@" "" is_empty)
+if(is_empty)
+  message(FATAL_ERROR "Expected ADB_COMMAND")
+endif()
+
+string(COMPARE EQUAL "${APP_SOURCE}" "" is_empty)
+if(is_empty)
+  message(FATAL_ERROR "Expected APP_SOURCE")
+endif()
+
+string(COMPARE EQUAL "@APP_DESTINATION@" "" is_empty)
+if(is_empty)
+  message(FATAL_ERROR "Expected APP_DESTINATION")
+endif()
+
+message("Push application to device: ${APP_SOURCE} -> @APP_DESTINATION@")
+set(cmd "@ADB_COMMAND@" push "${APP_SOURCE}" "@APP_DESTINATION@")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
+message("Set executable permissions")
+set(cmd "@ADB_COMMAND@" shell chmod 777 "@APP_DESTINATION@")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
+message("Run application: @APP_DESTINATION@ @APP_ARGUMENTS@")
+set(cmd "@ADB_COMMAND@" shell "@APP_DESTINATION@" "@APP_ARGUMENTS@")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
+message("Clean-up")
+set(cmd "@ADB_COMMAND@" shell rm "@APP_DESTINATION@")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+  message(FATAL_ERROR "Command failed: ${cmd}")
+endif()
+
+message("Done")

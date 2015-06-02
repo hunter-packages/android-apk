@@ -547,3 +547,66 @@ function(android_create_apk)
     )
   endif()
 endfunction()
+
+##################################################
+## FUNCTION: android_add_test
+##
+## Run test on device (similar to add_test)
+##
+## @param NAME
+##   Name of the test
+## @param COMMAND
+##   Command to test
+##################################################
+
+function(android_add_test)
+  if(HUNTER_ENABLED)
+    hunter_add_package(Android-SDK)
+    set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
+  else()
+    set(ADB_COMMAND "adb")
+  endif()
+
+  cmake_parse_arguments(x "" "NAME" "COMMAND" ${ARGV})
+  string(COMPARE NOTEQUAL "${x_UNPARSED_ARGUMENTS}" "" has_unparsed)
+  if(has_unparsed)
+    message(FATAL_ERROR "Unparsed: ${x_UNPARSED_ARGUMENTS}")
+  endif()
+
+  list(GET x_COMMAND 0 app_target)
+  if(NOT TARGET "${app_target}")
+    message(
+        FATAL_ERROR
+        "Expected executable target as first argument, but got: ${app_target}"
+    )
+  endif()
+
+  set(
+      script_loc
+      "${CMAKE_CURRENT_BINARY_DIR}/_3rdParty/AndroidTest/${x_NAME}.cmake"
+  )
+
+  list(REMOVE_AT x_COMMAND 0)
+  set(APP_ARGUMENTS ${x_COMMAND})
+
+  set(APP_DESTINATION "/data/bin/${PROJECT_NAME}/AndroidTest/${app_target}")
+
+  # Use:
+  # * ADB_COMMAND
+  # * APP_ARGUMENTS
+  # * APP_DESTINATION
+  configure_file(
+      "${ANDROID_THIS_DIRECTORY}/templates/AndroidTest.cmake.in"
+      "${script_loc}"
+      @ONLY
+  )
+
+  add_test(
+      NAME "${x_NAME}"
+      COMMAND
+          "${CMAKE_COMMAND}"
+          "-DAPP_SOURCE=$<TARGET_FILE:${app_target}>"
+          -P
+          "${script_loc}"
+  )
+endfunction()
