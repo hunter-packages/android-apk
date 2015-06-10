@@ -386,6 +386,11 @@ function(android_create_apk)
   )
 
   apk_check_not_empty(ANDROID_ABI)
+  
+  # Special case for ANDROID_ABI == "armv7a with NEON"
+  # which results in INSTALL_FAILED_NO_MATCHING_ABIS during installation
+  # This creates a separate variable for teh ANDROID_ABI_DIR omitting "with NEON"
+  string(REGEX REPLACE "with NEON" "" ANDROID_ABI_DIR "${ANDROID_ABI}")
 
   # Create the directory for the libraries
   add_custom_command(TARGET "${ANDROID_NAME}"
@@ -398,7 +403,7 @@ function(android_create_apk)
       "${CMAKE_COMMAND}"
       -E
       make_directory
-      "${apk_DIRECTORY}/libs/${ANDROID_ABI}"
+      "${apk_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
   )
 
   # Copy the used shared libraries
@@ -410,7 +415,7 @@ function(android_create_apk)
         -E
         copy
         "$<TARGET_FILE:${value}>"
-        "${apk_DIRECTORY}/libs/${ANDROID_ABI}"
+        "${apk_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
     )
   endforeach()
 
@@ -462,7 +467,7 @@ function(android_create_apk)
         COMMAND
             "${CMAKE_COMMAND}" -E copy
             "${CMAKE_GDBSERVER}"
-            "${apk_DIRECTORY}/libs/${ANDROID_ABI}"
+            "${apk_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
     )
   endif()
 
