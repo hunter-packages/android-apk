@@ -391,7 +391,7 @@ function(android_create_apk)
   # Special case for ANDROID_ABI == "armv7a with NEON"
   # which results in INSTALL_FAILED_NO_MATCHING_ABIS during installation
   # This creates a separate variable for teh ANDROID_ABI_DIR omitting "with NEON"
-  string(REGEX REPLACE "with NEON" "" ANDROID_ABI_DIR "${ANDROID_ABI}")
+  string(REGEX REPLACE " with NEON" "" ANDROID_ABI_DIR "${ANDROID_ABI}")
 
   # Create the directory for the libraries
   add_custom_command(TARGET "${ANDROID_NAME}"
