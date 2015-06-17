@@ -76,6 +76,10 @@ set(
     ANDROID_APK_SIGNER_ALIAS "myalias" CACHE STRING
     "Alias for signing the apk file (only required for release apk)"
 )
+set(
+    ANDROID_APK_APP_DESTINATION "/data/local/tmp/AndroidApk" CACHE STRING
+    "Directory on device for storing applications"
+)
 
 ##################################################
 ## Tools
@@ -595,10 +599,9 @@ function(android_add_test)
   list(REMOVE_AT x_COMMAND 0)
   set(APP_ARGUMENTS ${x_COMMAND})
 
-  set(
-      APP_DESTINATION
-      "/data/bin/${PROJECT_NAME}/AndroidTest/${x_NAME}/${app_target}"
-  )
+  set(APP_DESTINATION "${ANDROID_APK_APP_DESTINATION}")
+  set(APP_DESTINATION "${APP_DESTINATION}/${PROJECT_NAME}/AndroidTest")
+  set(APP_DESTINATION "${APP_DESTINATION}/${x_NAME}/${app_target}")
 
   # Use:
   # * ADB_COMMAND
