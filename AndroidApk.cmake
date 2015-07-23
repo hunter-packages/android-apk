@@ -253,7 +253,7 @@ endfunction()
 ##################################################
 
 function(android_create_apk)
-  if(XCODE OR MSCV_IDE)
+  if(XCODE OR MSVC_IDE)
     message(
         FATAL_ERROR
         "Only for single-configuration generators (like 'Unix Makefiles')"
