@@ -90,11 +90,16 @@ if(HUNTER_ENABLED)
   hunter_add_package(Android-Build-Tools)
 
   set(_sdk_path "${ANDROID-SDK_ROOT}/android-sdk")
+  set(_android_path "${_sdk_path}/tools/android")
+  if(NOT EXISTS "${_android_path}")
+    set(_android_path "${_sdk_path}/tools/android.bat")
+  endif()
   set(
       ANDROID_ANDROID_COMMAND
-      "${_sdk_path}/tools/android"
+      "${_android_path}"
       CACHE STRING "'android' script from Android SDK"
   )
+
   set(
       ANDROID_ADB_COMMAND
       "${_sdk_path}/platform-tools/adb"
