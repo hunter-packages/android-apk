@@ -3,7 +3,7 @@
 #*    Android apk tools
 #*
 #*  Copyright (C) 2002-2013 The PixelLight Team (http://www.pixellight.org/)
-#*  Copyright (C) 2015 Ruslan Baratov
+#*  Copyright (C) 2015-2016 Ruslan Baratov
 #*  Copyright (C) 2015 David Hirvonen
 #*
 #*  This file is part of PixelLight.
