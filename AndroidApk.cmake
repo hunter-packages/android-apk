@@ -41,22 +41,6 @@ set(
     "Run created apk file on the device automatically? \
 (installs it automatically as well, \"ANDROID_APK_INSTALL\"-option is ignored)"
 )
-set(
-    ANDROID_APK_TOP_LEVEL_DOMAIN "org" CACHE STRING
-    "Top level domain name of the organization \
-(follow the package naming conventions \
-(http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
-)
-set(
-    ANDROID_APK_DOMAIN "pixellight" CACHE STRING
-    "Organization's domain (follow the package naming conventions \
-(http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
-)
-set(
-    ANDROID_APK_SUBDOMAIN "test" CACHE STRING
-    "Any subdomains (follow the package naming conventions \
-(http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
-)
 
 ##################################################
 ## Tools
@@ -276,9 +260,10 @@ function(android_create_apk)
       "${x_BASE_TARGET}" PROPERTIES "${upper_build_type}_POSTFIX" ""
   )
 
-  apk_check_not_empty(ANDROID_APK_TOP_LEVEL_DOMAIN)
-  apk_check_not_empty(ANDROID_APK_DOMAIN)
-  apk_check_not_empty(ANDROID_APK_SUBDOMAIN)
+  # FIXME: user control
+  set(ANDROID_APK_TOP_LEVEL_DOMAIN "org")
+  set(ANDROID_APK_DOMAIN "pixellight")
+  set(ANDROID_APK_SUBDOMAIN "test")
 
   # Construct the current package name and theme
   set(ANDROID_APK_PACKAGE "${ANDROID_APK_TOP_LEVEL_DOMAIN}")
