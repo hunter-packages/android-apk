@@ -238,9 +238,8 @@ endfunction()
 ##
 ## Create/copy Android apk related files
 ##
-## @param NAME
-##   Name of the project (e.g. "MyProject"), this will also be the name of the
-##   created apk file
+## @param BASE_TARGET
+##   Library target that will be used for creating apk
 ## @param DIRECTORY
 ##   Directory were to construct the apk file in
 ##   (e.g. "${CMAKE_BINARY_DIR}/apk")
