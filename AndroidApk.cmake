@@ -284,9 +284,6 @@ function(android_create_apk)
     set(ANDROID_APK_THEME "")
   endif()
 
-  set(ANDROID_NAME "${x_BASE_TARGET}")
-  apk_check_not_empty(ANDROID_NAME)
-
   # Create apk file ready for release?
   # (signed, you have to enter a password during build, do also setup
   # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
