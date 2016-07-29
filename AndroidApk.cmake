@@ -58,10 +58,6 @@ set(
 (http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
 )
 set(
-    ANDROID_APK_SIGNER_KEYSTORE "~/my-release-key.keystore" CACHE STRING
-    "Keystore for signing the apk file (only required for release apk)"
-)
-set(
     ANDROID_APK_SIGNER_ALIAS "myalias" CACHE STRING
     "Alias for signing the apk file (only required for release apk)"
 )
@@ -507,6 +503,10 @@ function(android_create_apk)
         COMMAND "${ANDROID_ANT_COMMAND_PATH}" release
         WORKING_DIRECTORY "${x_DIRECTORY}"
     )
+
+    # Keystore for signing the apk file (only required for release apk)
+    # FIXME: user control
+    set(ANDROID_APK_SIGNER_KEYSTORE "~/my-release-key.keystore")
 
     apk_check_not_empty(ANDROID_APK_SIGNER_ALIAS)
     apk_check_not_empty(ANDROID_APK_SIGNER_KEYSTORE)
