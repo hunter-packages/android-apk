@@ -268,11 +268,13 @@ function(android_create_apk)
   cmake_parse_arguments(
       apk "" "NAME;DIRECTORY;ASSETS;DATA_DIRECTORY" "LIBRARIES" ${ARGV}
   )
-  # apk_NAME
-  # apk_DIRECTORY
-  # apk_ASSETS
-  # apk_DATA_DIRECTORY
-  # apk_LIBRARIES
+
+  # Introduce:
+  # * apk_NAME
+  # * apk_DIRECTORY
+  # * apk_ASSETS
+  # * apk_DATA_DIRECTORY
+  # * apk_LIBRARIES
 
   string(COMPARE EQUAL "${apk_UNPARSED_ARGUMENTS}" "" is_empty)
   if(NOT is_empty)
@@ -582,6 +584,9 @@ function(android_add_test)
     set(ADB_COMMAND "adb")
   endif()
 
+  # Introduce:
+  # * x_NAME
+  # * x_COMMAND
   cmake_parse_arguments(x "" "NAME" "COMMAND" ${ARGV})
   string(COMPARE NOTEQUAL "${x_UNPARSED_ARGUMENTS}" "" has_unparsed)
   if(has_unparsed)
