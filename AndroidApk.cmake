@@ -331,14 +331,18 @@ function(android_create_apk)
 
   apk_check_not_empty(_ANDROID_APK_THIS_DIRECTORY)
 
-  # Create "AndroidManifest.xml"
+  set(APPLICATION_NAME "${x_BASE_TARGET}")
+
+  # Used variables:
+  # * APPLICATION_NAME
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
       "${x_DIRECTORY}/AndroidManifest.xml"
       @ONLY
   )
 
-  # Create "res/values/strings.xml" (Note: ANDROID_NAME used)
+  # Used variables:
+  # * APPLICATION_NAME
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/strings.xml.in"
       "${x_DIRECTORY}/res/values/strings.xml"
