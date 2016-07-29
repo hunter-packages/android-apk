@@ -203,6 +203,8 @@ endfunction()
 ##   Library target that will be used for creating apk
 ## @param APP_NAME
 ##   Android application name
+## @param PACKAGE_NAME
+##   Android package name (com.example.appname)
 ## @param DIRECTORY
 ##   Directory were to construct the apk file in
 ##   (e.g. "${CMAKE_BINARY_DIR}/apk")
@@ -228,7 +230,7 @@ function(android_create_apk)
   endif()
 
   set(optional "")
-  set(one BASE_TARGET APP_NAME DIRECTORY ASSETS DATA_DIRECTORY)
+  set(one BASE_TARGET APP_NAME PACKAGE_NAME DIRECTORY ASSETS DATA_DIRECTORY)
   set(multiple LIBRARIES)
 
   cmake_parse_arguments(x "${optional}" "${one}" "${multiple}" "${ARGV}")
@@ -236,6 +238,7 @@ function(android_create_apk)
   # Introduce:
   # * x_BASE_TARGET
   # * x_APP_NAME
+  # * x_PACKAGE_NAME
   # * x_DIRECTORY
   # * x_ASSETS
   # * x_DATA_DIRECTORY
@@ -260,15 +263,12 @@ function(android_create_apk)
       "${x_BASE_TARGET}" PROPERTIES "${upper_build_type}_POSTFIX" ""
   )
 
-  # FIXME: user control
-  set(ANDROID_APK_TOP_LEVEL_DOMAIN "org")
-  set(ANDROID_APK_DOMAIN "pixellight")
-  set(ANDROID_APK_SUBDOMAIN "test")
-
-  # Construct the current package name and theme
-  set(ANDROID_APK_PACKAGE "${ANDROID_APK_TOP_LEVEL_DOMAIN}")
-  set(ANDROID_APK_PACKAGE "${ANDROID_APK_PACKAGE}.${ANDROID_APK_DOMAIN}")
-  set(ANDROID_APK_PACKAGE "${ANDROID_APK_PACKAGE}.${ANDROID_APK_SUBDOMAIN}")
+  string(COMPARE EQUAL "${x_PACKAGE_NAME}" "" no_package_name)
+  if(no_package_name)
+    set(ANDROID_APK_PACKAGE "com.example.${x_BASE_TARGET}")
+  else()
+    set(ANDROID_APK_PACKAGE "${x_PACKAGE_NAME}")
+  endif()
 
   # "Run the application in fullscreen? (no status/title bar)"
   # FIXME: user control
