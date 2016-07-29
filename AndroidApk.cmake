@@ -265,9 +265,11 @@ function(android_create_apk)
     )
   endif()
 
-  cmake_parse_arguments(
-      x "" "NAME;DIRECTORY;ASSETS;DATA_DIRECTORY" "LIBRARIES" ${ARGV}
-  )
+  set(optional "")
+  set(one NAME DIRECTORY ASSETS DATA_DIRECTORY)
+  set(multiple LIBRARIES)
+
+  cmake_parse_arguments(x "${optional}" "${one}" "${multiple}" "${ARGV}")
 
   # Introduce:
   # * x_NAME
@@ -276,9 +278,9 @@ function(android_create_apk)
   # * x_DATA_DIRECTORY
   # * x_LIBRARIES
 
-  string(COMPARE EQUAL "${apk_UNPARSED_ARGUMENTS}" "" is_empty)
+  string(COMPARE EQUAL "${x_UNPARSED_ARGUMENTS}" "" is_empty)
   if(NOT is_empty)
-    message(FATAL_ERROR "Unparsed: ${apk_UNPARSED_ARGUMENTS}")
+    message(FATAL_ERROR "Unparsed: ${x_UNPARSED_ARGUMENTS}")
   endif()
 
   apk_check_not_empty(x_DIRECTORY)
