@@ -32,7 +32,6 @@ include(CMakeParseArguments) # cmake_parse_arguments
 ##################################################
 ## Options
 ##################################################
-set(ANDROID_APK_CREATE "1" CACHE BOOL "Create apk file?")
 set(
     ANDROID_APK_INSTALL "1" CACHE BOOL
     "Install created apk file on the device automatically?"
@@ -298,10 +297,6 @@ function(android_create_apk)
   set_target_properties(
       "${x_BASE_TARGET}" PROPERTIES "${upper_build_type}_POSTFIX" ""
   )
-
-  if(NOT ANDROID_APK_CREATE)
-    return()
-  endif()
 
   apk_check_not_empty(ANDROID_APK_TOP_LEVEL_DOMAIN)
   apk_check_not_empty(ANDROID_APK_DOMAIN)
