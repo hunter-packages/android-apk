@@ -240,6 +240,8 @@ endfunction()
 ##
 ## @param BASE_TARGET
 ##   Library target that will be used for creating apk
+## @param APP_NAME
+##   Android application name
 ## @param DIRECTORY
 ##   Directory were to construct the apk file in
 ##   (e.g. "${CMAKE_BINARY_DIR}/apk")
@@ -265,13 +267,14 @@ function(android_create_apk)
   endif()
 
   set(optional "")
-  set(one BASE_TARGET DIRECTORY ASSETS DATA_DIRECTORY)
+  set(one BASE_TARGET APP_NAME DIRECTORY ASSETS DATA_DIRECTORY)
   set(multiple LIBRARIES)
 
   cmake_parse_arguments(x "${optional}" "${one}" "${multiple}" "${ARGV}")
 
   # Introduce:
   # * x_BASE_TARGET
+  # * x_APP_NAME
   # * x_DIRECTORY
   # * x_ASSETS
   # * x_DATA_DIRECTORY
@@ -331,7 +334,12 @@ function(android_create_apk)
 
   apk_check_not_empty(_ANDROID_APK_THIS_DIRECTORY)
 
-  set(APPLICATION_NAME "${x_BASE_TARGET}")
+  string(COMPARE EQUAL "${x_APP_NAME}" "" no_app_name)
+  if(no_app_name)
+    set(APPLICATION_NAME "${x_BASE_TARGET}")
+  else()
+    set(APPLICATION_NAME "${x_APP_NAME}")
+  endif()
 
   # Used variables:
   # * APPLICATION_NAME
