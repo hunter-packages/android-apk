@@ -311,7 +311,7 @@ function(android_create_apk)
   endif()
 
   # Used variables:
-  # * APPLICATION_NAME
+  # * x_BASE_TARGET
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
       "${x_DIRECTORY}/AndroidManifest.xml"
@@ -425,7 +425,7 @@ function(android_create_apk)
       COMMAND
           "${ANDROID_ANDROID_COMMAND_PATH}" update project
           -t android-${ANDROID_API_LEVEL}
-          --name ${ANDROID_NAME}
+          --name "${APPLICATION_NAME}"
           --path "${x_DIRECTORY}"
   )
 
@@ -445,7 +445,7 @@ function(android_create_apk)
     )
     foreach(value ${x_ASSETS})
       android_copy_files(
-          "${ANDROID_NAME}"
+          "${x_BASE_TARGET}"
           "${value}"
           "${x_DIRECTORY}/assets/${x_DATA_DIRECTORY}"
       )
@@ -499,7 +499,7 @@ function(android_create_apk)
             "${ANDROID_JARSIGNER_COMMAND_PATH}"
             -verbose
             -keystore "${ANDROID_APK_SIGNER_KEYSTORE}"
-            "bin/${ANDROID_NAME}-unsigned.apk"
+            "bin/${APPLICATION_NAME}-unsigned.apk"
             "${ANDROID_APK_SIGNER_ALIAS}"
         WORKING_DIRECTORY "${x_DIRECTORY}"
     )
@@ -509,7 +509,7 @@ function(android_create_apk)
     add_custom_command(TARGET ${x_BASE_TARGET}
         COMMAND
             "${ANDROID_ZIPALIGN_COMMAND_PATH}"
-            -v -f 4 "bin/${ANDROID_NAME}-unsigned.apk" "bin/${ANDROID_NAME}.apk"
+            -v -f 4 "bin/${APPLICATION_NAME}-unsigned.apk" "bin/${APPLICATION_NAME}.apk"
         WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
@@ -518,7 +518,7 @@ function(android_create_apk)
       add_custom_command(TARGET ${x_BASE_TARGET}
           COMMAND
               "${ANDROID_ADB_COMMAND_PATH}"
-              install -r "bin/${ANDROID_NAME}.apk"
+              install -r "bin/${APPLICATION_NAME}.apk"
           WORKING_DIRECTORY "${x_DIRECTORY}"
       )
     endif()
@@ -534,7 +534,7 @@ function(android_create_apk)
       add_custom_command(TARGET ${x_BASE_TARGET}
           COMMAND
               "${ANDROID_ADB_COMMAND_PATH}"
-              install -r "bin/${ANDROID_NAME}-debug.apk"
+              install -r "bin/${APPLICATION_NAME}-debug.apk"
           WORKING_DIRECTORY "${x_DIRECTORY}"
       )
     endif()
