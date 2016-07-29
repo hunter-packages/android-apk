@@ -1,6 +1,6 @@
 // IMPORTANT: Do not manually manipulate this automatically generated file, changes will be gone after the next build!
 
-package @ANDROID_APK_TOP_LEVEL_DOMAIN@.@ANDROID_APK_DOMAIN@.@ANDROID_APK_SUBDOMAIN@;
+package @ANDROID_APK_PACKAGE@;
 
 import android.app.NativeActivity;
 

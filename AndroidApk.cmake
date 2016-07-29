@@ -57,10 +57,6 @@ set(
     "Any subdomains (follow the package naming conventions \
 (http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
 )
-set(
-    ANDROID_APK_APP_DESTINATION "/data/local/tmp/AndroidApk" CACHE STRING
-    "Directory on device for storing applications"
-)
 
 ##################################################
 ## Tools
@@ -391,6 +387,9 @@ function(android_create_apk)
       x
       "${x}/${ANDROID_APK_DOMAIN}/${ANDROID_APK_SUBDOMAIN}/LoadLibraries.java"
   )
+
+  # Used variables:
+  # * ANDROID_APK_PACKAGE
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/LoadLibraries.java.in"
       "${x}"
@@ -616,6 +615,10 @@ function(android_add_test)
 
   list(REMOVE_AT x_COMMAND 0)
   set(APP_ARGUMENTS ${x_COMMAND})
+
+  # Directory on device for storing applications
+  # FIXME: user control
+  set(ANDROID_APK_APP_DESTINATION "/data/local/tmp/AndroidApk")
 
   set(APP_DESTINATION "${ANDROID_APK_APP_DESTINATION}")
   set(APP_DESTINATION "${APP_DESTINATION}/${PROJECT_NAME}/AndroidTest")
