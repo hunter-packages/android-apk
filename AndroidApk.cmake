@@ -58,12 +58,6 @@ set(
 (http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
 )
 set(
-    ANDROID_APK_RELEASE "0" CACHE BOOL
-    "Create apk file ready for release? \
-(signed, you have to enter a password during build, do also setup \
-\"ANDROID_APK_SIGNER_KEYSTORE\" and \"ANDROID_APK_SIGNER_ALIAS\")"
-)
-set(
     ANDROID_APK_SIGNER_KEYSTORE "~/my-release-key.keystore" CACHE STRING
     "Keystore for signing the apk file (only required for release apk)"
 )
@@ -318,6 +312,12 @@ function(android_create_apk)
 
   set(ANDROID_NAME "${x_BASE_TARGET}")
   apk_check_not_empty(ANDROID_NAME)
+
+  # Create apk file ready for release?
+  # (signed, you have to enter a password during build, do also setup
+  # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
+  # FIXME: user control
+  set(ANDROID_APK_RELEASE "0")
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(ANDROID_APK_DEBUGGABLE "true")
