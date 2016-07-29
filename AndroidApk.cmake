@@ -58,10 +58,6 @@ set(
 (http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions))"
 )
 set(
-    ANDROID_APK_FULLSCREEN "1" CACHE BOOL
-    "Run the application in fullscreen? (no status/title bar)"
-)
-set(
     ANDROID_APK_RELEASE "0" CACHE BOOL
     "Create apk file ready for release? \
 (signed, you have to enter a password during build, do also setup \
@@ -306,6 +302,10 @@ function(android_create_apk)
   set(ANDROID_APK_PACKAGE "${ANDROID_APK_TOP_LEVEL_DOMAIN}")
   set(ANDROID_APK_PACKAGE "${ANDROID_APK_PACKAGE}.${ANDROID_APK_DOMAIN}")
   set(ANDROID_APK_PACKAGE "${ANDROID_APK_PACKAGE}.${ANDROID_APK_SUBDOMAIN}")
+
+  # "Run the application in fullscreen? (no status/title bar)"
+  # FIXME: user control
+  set(ANDROID_APK_FULLSCREEN "1")
 
   if(ANDROID_APK_FULLSCREEN)
     set(
