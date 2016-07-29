@@ -266,33 +266,33 @@ function(android_create_apk)
   endif()
 
   cmake_parse_arguments(
-      apk "" "NAME;DIRECTORY;ASSETS;DATA_DIRECTORY" "LIBRARIES" ${ARGV}
+      x "" "NAME;DIRECTORY;ASSETS;DATA_DIRECTORY" "LIBRARIES" ${ARGV}
   )
 
   # Introduce:
-  # * apk_NAME
-  # * apk_DIRECTORY
-  # * apk_ASSETS
-  # * apk_DATA_DIRECTORY
-  # * apk_LIBRARIES
+  # * x_NAME
+  # * x_DIRECTORY
+  # * x_ASSETS
+  # * x_DATA_DIRECTORY
+  # * x_LIBRARIES
 
   string(COMPARE EQUAL "${apk_UNPARSED_ARGUMENTS}" "" is_empty)
   if(NOT is_empty)
     message(FATAL_ERROR "Unparsed: ${apk_UNPARSED_ARGUMENTS}")
   endif()
 
-  apk_check_not_empty(apk_DIRECTORY)
-  apk_check_not_empty(apk_NAME)
+  apk_check_not_empty(x_DIRECTORY)
+  apk_check_not_empty(x_NAME)
 
-  if(NOT TARGET "${apk_NAME}")
-    message(FATAL_ERROR "Target not exists: ${apk_NAME}")
+  if(NOT TARGET "${x_NAME}")
+    message(FATAL_ERROR "Target not exists: ${x_NAME}")
   endif()
 
   # Remove library postfix.
   # E.g. debug version have the same name for LoadLibrary
   string(TOUPPER "${CMAKE_BUILD_TYPE}" upper_build_type)
   set_target_properties(
-      "${apk_NAME}" PROPERTIES "${upper_build_type}_POSTFIX" ""
+      "${x_NAME}" PROPERTIES "${upper_build_type}_POSTFIX" ""
   )
 
   if(NOT ANDROID_APK_CREATE)
@@ -317,7 +317,7 @@ function(android_create_apk)
     set(ANDROID_APK_THEME "")
   endif()
 
-  set(ANDROID_NAME "${apk_NAME}")
+  set(ANDROID_NAME "${x_NAME}")
   apk_check_not_empty(ANDROID_NAME)
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -333,21 +333,21 @@ function(android_create_apk)
   # Create "AndroidManifest.xml"
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
-      "${apk_DIRECTORY}/AndroidManifest.xml"
+      "${x_DIRECTORY}/AndroidManifest.xml"
       @ONLY
   )
 
   # Create "res/values/strings.xml" (Note: ANDROID_NAME used)
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/strings.xml.in"
-      "${apk_DIRECTORY}/res/values/strings.xml"
+      "${x_DIRECTORY}/res/values/strings.xml"
       @ONLY
   )
 
   # Get a list of libraries to load in (e.g. "PLCore;PLMath" etc.)
   set(ANDROID_SHARED_LIBRARIES_TO_LOAD "")
-  list(APPEND apk_LIBRARIES "${ANDROID_NAME}") # main library must be used too
-  foreach(value ${apk_LIBRARIES})
+  list(APPEND x_LIBRARIES "${ANDROID_NAME}") # main library must be used too
+  foreach(value ${x_LIBRARIES})
     if(TARGET "${value}")
       add_dependencies("${ANDROID_NAME}" "${value}")
       list(APPEND ANDROID_SHARED_LIBRARIES_TO_LOAD "${value}")
@@ -386,7 +386,7 @@ function(android_create_apk)
   # Create Java file which is responsible for loading in the required shared
   # libraries (the content of "ANDROID_SHARED_LIBRARIES_TO_LOAD" is used
   # for this)
-  set(x "${apk_DIRECTORY}/src/${ANDROID_APK_TOP_LEVEL_DOMAIN}")
+  set(x "${x_DIRECTORY}/src/${ANDROID_APK_TOP_LEVEL_DOMAIN}")
   set(
       x
       "${x}/${ANDROID_APK_DOMAIN}/${ANDROID_APK_SUBDOMAIN}/LoadLibraries.java"
@@ -407,7 +407,7 @@ function(android_create_apk)
   # Create the directory for the libraries
   add_custom_command(TARGET "${ANDROID_NAME}"
       PRE_BUILD
-      COMMAND ${CMAKE_COMMAND} -E remove_directory "${apk_DIRECTORY}/libs"
+      COMMAND ${CMAKE_COMMAND} -E remove_directory "${x_DIRECTORY}/libs"
   )
   add_custom_command(TARGET "${ANDROID_NAME}"
       PRE_BUILD
@@ -415,11 +415,11 @@ function(android_create_apk)
       "${CMAKE_COMMAND}"
       -E
       make_directory
-      "${apk_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
+      "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
   )
 
   # Copy the used shared libraries
-  foreach(value ${apk_LIBRARIES})
+  foreach(value ${x_LIBRARIES})
     add_custom_command(TARGET ${ANDROID_NAME}
         POST_BUILD
         COMMAND
@@ -427,7 +427,7 @@ function(android_create_apk)
         -E
         copy
         "$<TARGET_FILE:${value}>"
-        "${apk_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
+        "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
     )
   endforeach()
 
@@ -445,28 +445,28 @@ function(android_create_apk)
           "${ANDROID_ANDROID_COMMAND_PATH}" update project
           -t android-${ANDROID_API_LEVEL}
           --name ${ANDROID_NAME}
-          --path "${apk_DIRECTORY}"
+          --path "${x_DIRECTORY}"
   )
 
   # Copy assets
   add_custom_command(TARGET ${ANDROID_NAME}
     PRE_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E remove_directory "${apk_DIRECTORY}/assets"
+    COMMAND "${CMAKE_COMMAND}" -E remove_directory "${x_DIRECTORY}/assets"
   )
-  string(COMPARE NOTEQUAL "${apk_ASSETS}" "" has_assets)
+  string(COMPARE NOTEQUAL "${x_ASSETS}" "" has_assets)
   if(has_assets)
-    apk_check_not_empty(apk_DATA_DIRECTORY)
+    apk_check_not_empty(x_DATA_DIRECTORY)
     add_custom_command(
         TARGET ${ANDROID_NAME} PRE_BUILD
         COMMAND
             "${CMAKE_COMMAND}" -E make_directory
-            "${apk_DIRECTORY}/assets/${apk_DATA_DIRECTORY}"
+            "${x_DIRECTORY}/assets/${x_DATA_DIRECTORY}"
     )
-    foreach(value ${apk_ASSETS})
+    foreach(value ${x_ASSETS})
       android_copy_files(
           "${ANDROID_NAME}"
           "${value}"
-          "${apk_DIRECTORY}/assets/${apk_DATA_DIRECTORY}"
+          "${x_DIRECTORY}/assets/${x_DATA_DIRECTORY}"
       )
     endforeach()
   endif()
@@ -479,7 +479,7 @@ function(android_create_apk)
         COMMAND
             "${CMAKE_COMMAND}" -E copy
             "${CMAKE_GDBSERVER}"
-            "${apk_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
+            "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
     )
   endif()
 
@@ -497,7 +497,7 @@ function(android_create_apk)
     # Let Ant create the unsigned apk file
     add_custom_command(TARGET ${ANDROID_NAME}
         COMMAND "${ANDROID_ANT_COMMAND_PATH}" release
-        WORKING_DIRECTORY "${apk_DIRECTORY}"
+        WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
     apk_check_not_empty(ANDROID_APK_SIGNER_ALIAS)
@@ -512,7 +512,7 @@ function(android_create_apk)
             -keystore "${ANDROID_APK_SIGNER_KEYSTORE}"
             "bin/${ANDROID_NAME}-unsigned.apk"
             "${ANDROID_APK_SIGNER_ALIAS}"
-        WORKING_DIRECTORY "${apk_DIRECTORY}"
+        WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
     apk_find_tool("${ANDROID_ZIPALIGN_COMMAND}" ANDROID_ZIPALIGN_COMMAND_PATH)
@@ -521,7 +521,7 @@ function(android_create_apk)
         COMMAND
             "${ANDROID_ZIPALIGN_COMMAND_PATH}"
             -v -f 4 "bin/${ANDROID_NAME}-unsigned.apk" "bin/${ANDROID_NAME}.apk"
-        WORKING_DIRECTORY "${apk_DIRECTORY}"
+        WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
     # Install current version on the device/emulator
@@ -530,14 +530,14 @@ function(android_create_apk)
           COMMAND
               "${ANDROID_ADB_COMMAND_PATH}"
               install -r "bin/${ANDROID_NAME}.apk"
-          WORKING_DIRECTORY "${apk_DIRECTORY}"
+          WORKING_DIRECTORY "${x_DIRECTORY}"
       )
     endif()
   else()
     # Let Ant create the unsigned apk file
     add_custom_command(TARGET ${ANDROID_NAME}
         COMMAND "${ANDROID_ANT_COMMAND_PATH}" debug
-        WORKING_DIRECTORY "${apk_DIRECTORY}"
+        WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
     # Install current version on the device/emulator
@@ -546,7 +546,7 @@ function(android_create_apk)
           COMMAND
               "${ANDROID_ADB_COMMAND_PATH}"
               install -r "bin/${ANDROID_NAME}-debug.apk"
-          WORKING_DIRECTORY "${apk_DIRECTORY}"
+          WORKING_DIRECTORY "${x_DIRECTORY}"
       )
     endif()
   endif()
