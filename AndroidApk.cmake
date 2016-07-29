@@ -205,6 +205,7 @@ endfunction()
 ##   Android application name
 ## @param PACKAGE_NAME
 ##   Android package name (com.example.appname)
+##   (http://en.wikipedia.org/wiki/Java_package#Package_naming_conventions)
 ## @param DIRECTORY
 ##   Directory were to construct the apk file in
 ##   (e.g. "${CMAKE_BINARY_DIR}/apk")
