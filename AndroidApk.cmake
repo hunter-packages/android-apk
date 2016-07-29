@@ -382,17 +382,13 @@ function(android_create_apk)
   # Create Java file which is responsible for loading in the required shared
   # libraries (the content of "ANDROID_SHARED_LIBRARIES_TO_LOAD" is used
   # for this)
-  set(x "${x_DIRECTORY}/src/${ANDROID_APK_TOP_LEVEL_DOMAIN}")
-  set(
-      x
-      "${x}/${ANDROID_APK_DOMAIN}/${ANDROID_APK_SUBDOMAIN}/LoadLibraries.java"
-  )
+  string(REPLACE "." "/" hierarchy "${ANDROID_APK_PACKAGE}")
 
   # Used variables:
   # * ANDROID_APK_PACKAGE
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/LoadLibraries.java.in"
-      "${x}"
+      "${x_DIRECTORY}/src/${hierarchy}/LoadLibraries.java"
       @ONLY
   )
 
