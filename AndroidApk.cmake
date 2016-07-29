@@ -152,7 +152,7 @@ endif()
 ##################################################
 
 # Directory this CMake file is in
-set(ANDROID_THIS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
+set(_ANDROID_APK_THIS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
 ##################################################
 ## FUNCTION: apk_check_not_empty
@@ -326,18 +326,18 @@ function(android_create_apk)
     set(ANDROID_APK_RELEASE_LOCAL ${ANDROID_APK_RELEASE})
   endif()
 
-  apk_check_not_empty(ANDROID_THIS_DIRECTORY)
+  apk_check_not_empty(_ANDROID_APK_THIS_DIRECTORY)
 
   # Create "AndroidManifest.xml"
   configure_file(
-      "${ANDROID_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
       "${apk_DIRECTORY}/AndroidManifest.xml"
       @ONLY
   )
 
   # Create "res/values/strings.xml" (Note: ANDROID_NAME used)
   configure_file(
-      "${ANDROID_THIS_DIRECTORY}/templates/strings.xml.in"
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/strings.xml.in"
       "${apk_DIRECTORY}/res/values/strings.xml"
       @ONLY
   )
@@ -390,7 +390,7 @@ function(android_create_apk)
       "${x}/${ANDROID_APK_DOMAIN}/${ANDROID_APK_SUBDOMAIN}/LoadLibraries.java"
   )
   configure_file(
-      "${ANDROID_THIS_DIRECTORY}/templates/LoadLibraries.java.in"
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/LoadLibraries.java.in"
       "${x}"
       @ONLY
   )
@@ -613,7 +613,7 @@ function(android_add_test)
   # * APP_ARGUMENTS
   # * APP_DESTINATION
   configure_file(
-      "${ANDROID_THIS_DIRECTORY}/templates/AndroidTest.cmake.in"
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidTest.cmake.in"
       "${script_loc}"
       @ONLY
   )
