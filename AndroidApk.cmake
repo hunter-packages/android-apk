@@ -266,13 +266,13 @@ function(android_create_apk)
   endif()
 
   set(optional "")
-  set(one NAME DIRECTORY ASSETS DATA_DIRECTORY)
+  set(one BASE_TARGET DIRECTORY ASSETS DATA_DIRECTORY)
   set(multiple LIBRARIES)
 
   cmake_parse_arguments(x "${optional}" "${one}" "${multiple}" "${ARGV}")
 
   # Introduce:
-  # * x_NAME
+  # * x_BASE_TARGET
   # * x_DIRECTORY
   # * x_ASSETS
   # * x_DATA_DIRECTORY
@@ -284,17 +284,17 @@ function(android_create_apk)
   endif()
 
   apk_check_not_empty(x_DIRECTORY)
-  apk_check_not_empty(x_NAME)
+  apk_check_not_empty(x_BASE_TARGET)
 
-  if(NOT TARGET "${x_NAME}")
-    message(FATAL_ERROR "Target not exists: ${x_NAME}")
+  if(NOT TARGET "${x_BASE_TARGET}")
+    message(FATAL_ERROR "Target not exists: ${x_BASE_TARGET}")
   endif()
 
   # Remove library postfix.
   # E.g. debug version have the same name for LoadLibrary
   string(TOUPPER "${CMAKE_BUILD_TYPE}" upper_build_type)
   set_target_properties(
-      "${x_NAME}" PROPERTIES "${upper_build_type}_POSTFIX" ""
+      "${x_BASE_TARGET}" PROPERTIES "${upper_build_type}_POSTFIX" ""
   )
 
   if(NOT ANDROID_APK_CREATE)
@@ -319,7 +319,7 @@ function(android_create_apk)
     set(ANDROID_APK_THEME "")
   endif()
 
-  set(ANDROID_NAME "${x_NAME}")
+  set(ANDROID_NAME "${x_BASE_TARGET}")
   apk_check_not_empty(ANDROID_NAME)
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
