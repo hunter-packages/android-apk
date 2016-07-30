@@ -593,6 +593,7 @@ function(android_create_apk)
         shell
         am
         start
+        -S
         -n
         "${ANDROID_APK_PACKAGE}/${ANDROID_APK_PACKAGE}.LoadLibraries"
         DEPENDS
