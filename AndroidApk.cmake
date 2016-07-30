@@ -201,6 +201,12 @@ endfunction()
 ##
 ## @param BASE_TARGET
 ##   Library target that will be used for creating apk
+## @param APK_TARGET
+##   Name of the target for creating apk
+## @param INSTALL_TARGET
+##   Name of the target for installing apk to device
+## @param LAUNCH_TARGET
+##   Name of the target for launching apk on device
 ## @param APP_NAME
 ##   Android application name
 ## @param PACKAGE_NAME
@@ -231,13 +237,27 @@ function(android_create_apk)
   endif()
 
   set(optional "")
-  set(one BASE_TARGET APP_NAME PACKAGE_NAME DIRECTORY ASSETS DATA_DIRECTORY)
+  set(
+      one
+      BASE_TARGET
+      APK_TARGET
+      INSTALL_TARGET
+      LAUNCH_TARGET
+      APP_NAME
+      PACKAGE_NAME
+      DIRECTORY
+      ASSETS
+      DATA_DIRECTORY
+  )
   set(multiple LIBRARIES)
 
   cmake_parse_arguments(x "${optional}" "${one}" "${multiple}" "${ARGV}")
 
   # Introduce:
   # * x_BASE_TARGET
+  # * x_APK_TARGET # TODO
+  # * x_INSTALL_TARGET # TODO
+  # * x_LAUNCH_TARGET # TODO
   # * x_APP_NAME
   # * x_PACKAGE_NAME
   # * x_DIRECTORY
@@ -248,6 +268,31 @@ function(android_create_apk)
   string(COMPARE EQUAL "${x_UNPARSED_ARGUMENTS}" "" is_empty)
   if(NOT is_empty)
     message(FATAL_ERROR "Unparsed: ${x_UNPARSED_ARGUMENTS}")
+  endif()
+
+  string(COMPARE EQUAL "${x_APK_TARGET}" "" unnamed_apk_target)
+  string(COMPARE EQUAL "${x_INSTALL_TARGET}" "" unnamed_install_target)
+  string(COMPARE EQUAL "${x_LAUNCH_TARGET}" "" unnamed_launch_target)
+
+  if(unnamed_apk_target AND unnamed_install_target AND unnamed_launch_target)
+    message(
+        FATAL_ERROR
+        "At least one of the APK_TARGET/INSTALL_TARGET/LAUNCH_TARGET expected"
+    )
+  endif()
+
+  # Since at least one target expected, hence apk should always be created,
+  # hence variable 'create_apk_target' will be always TRUE and not needed.
+  set(create_install_target FALSE)
+  set(create_launch_target FALSE)
+
+  if(NOT unnamed_install_target)
+    set(create_install_target TRUE)
+  endif()
+
+  if(NOT unnamed_launch_target)
+    set(create_install_target TRUE)
+    set(create_launch_target TRUE)
   endif()
 
   apk_check_not_empty(x_DIRECTORY)
