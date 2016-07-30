@@ -256,7 +256,7 @@ function(android_create_apk)
   # Introduce:
   # * x_BASE_TARGET
   # * x_APK_TARGET # TODO
-  # * x_INSTALL_TARGET # TODO
+  # * x_INSTALL_TARGET
   # * x_LAUNCH_TARGET
   # * x_APP_NAME
   # * x_PACKAGE_NAME
@@ -555,15 +555,7 @@ function(android_create_apk)
         WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
-    # Install current version on the device/emulator
-    if(ANDROID_APK_INSTALL OR ANDROID_APK_RUN)
-      add_custom_command(TARGET ${x_BASE_TARGET}
-          COMMAND
-              "${ANDROID_ADB_COMMAND_PATH}"
-              install -r "bin/${APPLICATION_NAME}.apk"
-          WORKING_DIRECTORY "${x_DIRECTORY}"
-      )
-    endif()
+    set(apk_path "bin/${APPLICATION_NAME}.apk")
   else()
     # Let Ant create the unsigned apk file
     add_custom_command(TARGET ${x_BASE_TARGET}
@@ -571,22 +563,29 @@ function(android_create_apk)
         WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
-    # Install current version on the device/emulator
-    if(ANDROID_APK_INSTALL OR ANDROID_APK_RUN)
-      add_custom_command(TARGET ${x_BASE_TARGET}
-          COMMAND
-              "${ANDROID_ADB_COMMAND_PATH}"
-              install -r "bin/${APPLICATION_NAME}-debug.apk"
-          WORKING_DIRECTORY "${x_DIRECTORY}"
-      )
-    endif()
+    set(apk_path "bin/${APPLICATION_NAME}-debug.apk")
   endif()
 
-  # Start the application
-  if(create_launch_target)
-    if(unnamed_launch_target)
-      message(FATAL_ERROR "Logic error")
+  if(create_install_target)
+    if(unnamed_install_target)
+      set(install_target_name "Android-Apk-${x_BASE_TARGET}-install")
+    else()
+      set(install_target_name "${x_INSTALL_TARGET}")
     endif()
+    add_custom_target(
+        "${install_target_name}"
+        "${ANDROID_ADB_COMMAND_PATH}"
+        install
+        -r
+        "${apk_path}"
+        WORKING_DIRECTORY
+        "${x_DIRECTORY}"
+        DEPENDS
+        "${x_BASE_TARGET}"
+    )
+  endif()
+
+  if(create_launch_target)
     add_custom_target(
         "${x_LAUNCH_TARGET}"
         "${ANDROID_ADB_COMMAND_PATH}"
@@ -597,7 +596,7 @@ function(android_create_apk)
         -n
         "${ANDROID_APK_PACKAGE}/${ANDROID_APK_PACKAGE}.LoadLibraries"
         DEPENDS
-        "${x_BASE_TARGET}"
+        "${install_target_name}"
     )
   endif()
 endfunction()
