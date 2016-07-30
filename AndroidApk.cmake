@@ -257,7 +257,7 @@ function(android_create_apk)
   # * x_BASE_TARGET
   # * x_APK_TARGET # TODO
   # * x_INSTALL_TARGET # TODO
-  # * x_LAUNCH_TARGET # TODO
+  # * x_LAUNCH_TARGET
   # * x_APP_NAME
   # * x_PACKAGE_NAME
   # * x_DIRECTORY
@@ -583,15 +583,20 @@ function(android_create_apk)
   endif()
 
   # Start the application
-  if(ANDROID_APK_RUN)
-    add_custom_command(TARGET ${x_BASE_TARGET}
-        COMMAND
+  if(create_launch_target)
+    if(unnamed_launch_target)
+      message(FATAL_ERROR "Logic error")
+    endif()
+    add_custom_target(
+        "${x_LAUNCH_TARGET}"
         "${ANDROID_ADB_COMMAND_PATH}"
         shell
         am
         start
         -n
         "${ANDROID_APK_PACKAGE}/${ANDROID_APK_PACKAGE}.LoadLibraries"
+        DEPENDS
+        "${x_BASE_TARGET}"
     )
   endif()
 endfunction()
