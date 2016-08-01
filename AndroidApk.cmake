@@ -30,19 +30,6 @@
 include(CMakeParseArguments) # cmake_parse_arguments
 
 ##################################################
-## Options
-##################################################
-set(
-    ANDROID_APK_INSTALL "1" CACHE BOOL
-    "Install created apk file on the device automatically?"
-)
-set(
-    ANDROID_APK_RUN "1" CACHE BOOL
-    "Run created apk file on the device automatically? \
-(installs it automatically as well, \"ANDROID_APK_INSTALL\"-option is ignored)"
-)
-
-##################################################
 ## Tools
 ##################################################
 
