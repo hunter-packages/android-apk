@@ -175,7 +175,7 @@ function(android_copy_files targetname src dest)
 
     # Copy file
     add_custom_command(
-        TARGET "${targetname}" PRE_BUILD
+        TARGET "${targetname}" POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy "${src_file}" "${dst_file}" VERBATIM
     )
   endforeach()
@@ -235,7 +235,7 @@ function(android_create_apk)
 
   # Introduce:
   # * x_BASE_TARGET
-  # * x_APK_TARGET # TODO
+  # * x_APK_TARGET
   # * x_INSTALL_TARGET
   # * x_LAUNCH_TARGET
   # * x_APP_NAME
@@ -301,15 +301,6 @@ function(android_create_apk)
   # "Run the application in fullscreen? (no status/title bar)"
   # FIXME: user control
   set(ANDROID_APK_FULLSCREEN "1")
-
-  if(ANDROID_APK_FULLSCREEN)
-    set(
-        ANDROID_APK_THEME
-        "android:theme=\"@android:style/Theme.NoTitleBar.Fullscreen\""
-    )
-  else()
-    set(ANDROID_APK_THEME "")
-  endif()
 
   string(COMPARE EQUAL "${x_APP_NAME}" "" no_app_name)
   if(no_app_name)
@@ -403,162 +394,92 @@ function(android_create_apk)
     apk_find_tool("${ANDROID_ZIPALIGN_COMMAND}" ANDROID_ZIPALIGN_COMMAND_PATH)
   endif()
 
-  ### FIXME -------------
-
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    set(ANDROID_APK_DEBUGGABLE "true")
-    set(ANDROID_APK_RELEASE_LOCAL "0")
+  if(unnamed_apk_target)
+    set(apk_target_name "Android-Apk-${x_BASE_TARGET}-apk")
   else()
-    set(ANDROID_APK_DEBUGGABLE "false")
-    set(ANDROID_APK_RELEASE_LOCAL ${ANDROID_APK_RELEASE})
+    set(apk_target_name "${x_APK_TARGET}")
   endif()
 
-  # Used variables:
-  # * ANDROID_API_LEVEL
-  # * ANDROID_APK_DEBUGGABLE
-  # * ANDROID_APK_PACKAGE
-  # * ANDROID_APK_THEME
-  # * x_BASE_TARGET
-  configure_file(
-      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
-      "${x_DIRECTORY}/AndroidManifest.xml"
-      @ONLY
-  )
+  add_custom_target("${apk_target_name}" DEPENDS "${x_BASE_TARGET}")
 
-  # Create the directory for the libraries
-  add_custom_command(TARGET "${x_BASE_TARGET}"
-      PRE_BUILD
-      COMMAND ${CMAKE_COMMAND} -E remove_directory "${x_DIRECTORY}/libs"
-  )
-  add_custom_command(TARGET "${x_BASE_TARGET}"
-      PRE_BUILD
+  add_custom_command(
+      TARGET "${apk_target_name}"
+      POST_BUILD
       COMMAND
-      "${CMAKE_COMMAND}"
-      -E
-      make_directory
-      "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
+      "${CMAKE_COMMAND}" -E remove_directory "${x_DIRECTORY}/libs"
+      COMMAND
+      "${CMAKE_COMMAND}" -E remove_directory "${x_DIRECTORY}/assets"
+      COMMAND
+      "${CMAKE_COMMAND}" -E make_directory "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
   )
 
   # Copy the used shared libraries
   foreach(value ${x_LIBRARIES})
-    add_custom_command(TARGET ${x_BASE_TARGET}
+    add_custom_command(
+        TARGET "${apk_target_name}"
         POST_BUILD
         COMMAND
-        "${CMAKE_COMMAND}"
-        -E
-        copy
-        "$<TARGET_FILE:${value}>"
-        "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
+        "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${value}>" "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
     )
   endforeach()
 
-  apk_check_not_empty(ANDROID_API_LEVEL)
-
-  # Create files:
-  #   "build.xml"
-  #   "default.properties"
-  #   "local.properties"
-  #   "proguard.cfg"
-  add_custom_command(
-      TARGET ${x_BASE_TARGET}
-      COMMAND
-          "${ANDROID_ANDROID_COMMAND_PATH}" update project
-          -t android-${ANDROID_API_LEVEL}
-          --name "${APPLICATION_NAME}"
-          --path "${x_DIRECTORY}"
-  )
-
-  # Copy assets
-  add_custom_command(TARGET ${x_BASE_TARGET}
-    PRE_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E remove_directory "${x_DIRECTORY}/assets"
-  )
   string(COMPARE NOTEQUAL "${x_ASSETS}" "" has_assets)
   if(has_assets)
     apk_check_not_empty(x_DATA_DIRECTORY)
     add_custom_command(
-        TARGET ${x_BASE_TARGET} PRE_BUILD
+        TARGET "${apk_target_name}"
+        POST_BUILD
         COMMAND
-            "${CMAKE_COMMAND}" -E make_directory
-            "${x_DIRECTORY}/assets/${x_DATA_DIRECTORY}"
+        "${CMAKE_COMMAND}" -E make_directory "${x_DIRECTORY}/assets/${x_DATA_DIRECTORY}"
     )
     foreach(value ${x_ASSETS})
       android_copy_files(
-          "${x_BASE_TARGET}"
+          "${apk_target_name}"
           "${value}"
           "${x_DIRECTORY}/assets/${x_DATA_DIRECTORY}"
       )
     endforeach()
   endif()
 
-  # In case of debug build, do also copy gdbserver
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    apk_check_not_empty(CMAKE_GDBSERVER)
-    add_custom_command(TARGET ${x_BASE_TARGET}
-        POST_BUILD
-        COMMAND
-            "${CMAKE_COMMAND}" -E copy
-            "${CMAKE_GDBSERVER}"
-            "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
-    )
-  endif()
-
-  # Uninstall previous version from the device/emulator
-  # (else we may get e.g. signature conflicts)
-  add_custom_command(TARGET ${x_BASE_TARGET}
-      COMMAND "${ANDROID_ADB_COMMAND_PATH}" uninstall ${ANDROID_APK_PACKAGE}
+  add_custom_command(
+      TARGET
+      "${apk_target_name}"
+      POST_BUILD
+      COMMAND
+      "${CMAKE_COMMAND}"
+      "-DANDROID_ABI_DIR=${ANDROID_ABI_DIR}"
+      "-DANDROID_ANDROID_COMMAND_PATH=${ANDROID_ANDROID_COMMAND_PATH}"
+      "-DANDROID_ANT_COMMAND_PATH=${ANDROID_ANT_COMMAND_PATH}"
+      "-DANDROID_API_LEVEL=${ANDROID_API_LEVEL}"
+      "-DANDROID_APK_PACKAGE=${ANDROID_APK_PACKAGE}"
+      "-DANDROID_APK_RELEASE=${ANDROID_APK_RELEASE}"
+      "-DANDROID_APK_FULLSCREEN=${ANDROID_APK_FULLSCREEN}"
+      "-DANDROID_JARSIGNER_COMMAND_PATH=${ANDROID_JARSIGNER_COMMAND_PATH}"
+      "-DANDROID_ZIPALIGN_COMMAND_PATH=${ANDROID_ZIPALIGN_COMMAND_PATH}"
+      "-DAPK_BUILD_TYPE=$<CONFIG>"
+      "-DAPPLICATION_NAME=${APPLICATION_NAME}"
+      "-DCMAKE_GDBSERVER=${CMAKE_GDBSERVER}"
+      "-D_ANDROID_APK_THIS_DIRECTORY=${_ANDROID_APK_THIS_DIRECTORY}"
+      "-Dx_BASE_TARGET=${x_BASE_TARGET}"
+      "-Dx_DIRECTORY=${x_DIRECTORY}"
+      -P "${_ANDROID_APK_THIS_DIRECTORY}/scripts/CreateApk.cmake"
+      WORKING_DIRECTORY
+      "${x_DIRECTORY}"
   )
 
-  # Build the apk file
-  if(ANDROID_APK_RELEASE_LOCAL)
-    # Let Ant create the unsigned apk file
-    add_custom_command(TARGET ${x_BASE_TARGET}
-        COMMAND "${ANDROID_ANT_COMMAND_PATH}" release
-        WORKING_DIRECTORY "${x_DIRECTORY}"
-    )
+  if(ANDROID_APK_RELEASE)
+    # Depends on actual build type
+    set(apk_path_debug "bin/${APPLICATION_NAME}-debug.apk")
+    set(apk_path_release "bin/${APPLICATION_NAME}.apk")
 
-    # Keystore for signing the apk file (only required for release apk)
-    # FIXME: user control
-    set(ANDROID_APK_SIGNER_KEYSTORE "~/my-release-key.keystore")
+    set(apk_path_debug "$<$<CONFIG:Debug>:${apk_path_debug}>")
+    set(apk_path_release "$<$<NOT:$<CONFIG:Debug>>:${apk_path_release}>")
 
-    # Alias for signing the apk file (only required for release apk)
-    # FIXME: user control
-    set(ANDROID_APK_SIGNER_ALIAS "myalias")
-
-    apk_check_not_empty(ANDROID_APK_SIGNER_ALIAS)
-    apk_check_not_empty(ANDROID_APK_SIGNER_KEYSTORE)
-
-    # Sign the apk file
-    add_custom_command(TARGET ${x_BASE_TARGET}
-        COMMAND
-            "${ANDROID_JARSIGNER_COMMAND_PATH}"
-            -verbose
-            -keystore "${ANDROID_APK_SIGNER_KEYSTORE}"
-            "bin/${APPLICATION_NAME}-unsigned.apk"
-            "${ANDROID_APK_SIGNER_ALIAS}"
-        WORKING_DIRECTORY "${x_DIRECTORY}"
-    )
-
-    # Align the apk file
-    add_custom_command(TARGET ${x_BASE_TARGET}
-        COMMAND
-            "${ANDROID_ZIPALIGN_COMMAND_PATH}"
-            -v -f 4 "bin/${APPLICATION_NAME}-unsigned.apk" "bin/${APPLICATION_NAME}.apk"
-        WORKING_DIRECTORY "${x_DIRECTORY}"
-    )
-
-    set(apk_path "bin/${APPLICATION_NAME}.apk")
+    set(apk_path "${apk_path_debug}${apk_path_release}")
   else()
-    # Let Ant create the unsigned apk file
-    add_custom_command(TARGET ${x_BASE_TARGET}
-        COMMAND "${ANDROID_ANT_COMMAND_PATH}" debug
-        WORKING_DIRECTORY "${x_DIRECTORY}"
-    )
-
+    # Always debug
     set(apk_path "bin/${APPLICATION_NAME}-debug.apk")
   endif()
-
-  ### FIXME: -------------
 
   if(create_install_target)
     if(unnamed_install_target)
@@ -569,13 +490,17 @@ function(android_create_apk)
     add_custom_target(
         "${install_target_name}"
         "${ANDROID_ADB_COMMAND_PATH}"
+        uninstall
+        ${ANDROID_APK_PACKAGE}
+        COMMAND
+        "${ANDROID_ADB_COMMAND_PATH}"
         install
         -r
         "${apk_path}"
         WORKING_DIRECTORY
         "${x_DIRECTORY}"
         DEPENDS
-        "${x_BASE_TARGET}"
+        "${apk_target_name}"
     )
   endif()
 
