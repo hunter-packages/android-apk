@@ -216,13 +216,6 @@ endfunction()
 ##################################################
 
 function(android_create_apk)
-  if(XCODE OR MSVC_IDE)
-    message(
-        FATAL_ERROR
-        "Only for single-configuration generators (like 'Unix Makefiles')"
-    )
-  endif()
-
   set(optional "")
   set(
       one
@@ -291,10 +284,12 @@ function(android_create_apk)
 
   # Remove library postfix.
   # E.g. debug version have the same name for LoadLibrary
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" upper_build_type)
-  set_target_properties(
-      "${x_BASE_TARGET}" PROPERTIES "${upper_build_type}_POSTFIX" ""
-  )
+  foreach(build_type ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
+    string(TOUPPER "${build_type}" upper_build_type)
+    set_target_properties(
+        "${x_BASE_TARGET}" PROPERTIES "${upper_build_type}_POSTFIX" ""
+    )
+  endforeach()
 
   string(COMPARE EQUAL "${x_PACKAGE_NAME}" "" no_package_name)
   if(no_package_name)
