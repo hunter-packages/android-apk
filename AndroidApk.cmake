@@ -357,35 +357,7 @@ function(android_create_apk)
     endif()
   endforeach()
 
-  ### FIXME -------------
-
-  # Create apk file ready for release?
-  # (signed, you have to enter a password during build, do also setup
-  # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
-  # FIXME: user control
-  set(ANDROID_APK_RELEASE "0")
-
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    set(ANDROID_APK_DEBUGGABLE "true")
-    set(ANDROID_APK_RELEASE_LOCAL "0")
-  else()
-    set(ANDROID_APK_DEBUGGABLE "false")
-    set(ANDROID_APK_RELEASE_LOCAL ${ANDROID_APK_RELEASE})
-  endif()
-
   apk_check_not_empty(_ANDROID_APK_THIS_DIRECTORY)
-
-  # Used variables:
-  # * ANDROID_API_LEVEL
-  # * ANDROID_APK_DEBUGGABLE
-  # * ANDROID_APK_PACKAGE
-  # * ANDROID_APK_THEME
-  # * x_BASE_TARGET
-  configure_file(
-      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
-      "${x_DIRECTORY}/AndroidManifest.xml"
-      @ONLY
-  )
 
   # Used variables:
   # * APPLICATION_NAME
@@ -415,6 +387,34 @@ function(android_create_apk)
   # which results in INSTALL_FAILED_NO_MATCHING_ABIS during installation
   # This creates a separate variable for teh ANDROID_ABI_DIR omitting "with NEON"
   string(REGEX REPLACE " with NEON" "" ANDROID_ABI_DIR "${ANDROID_ABI}")
+
+  ### FIXME -------------
+
+  # Create apk file ready for release?
+  # (signed, you have to enter a password during build, do also setup
+  # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
+  # FIXME: user control
+  set(ANDROID_APK_RELEASE "0")
+
+  if(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(ANDROID_APK_DEBUGGABLE "true")
+    set(ANDROID_APK_RELEASE_LOCAL "0")
+  else()
+    set(ANDROID_APK_DEBUGGABLE "false")
+    set(ANDROID_APK_RELEASE_LOCAL ${ANDROID_APK_RELEASE})
+  endif()
+
+  # Used variables:
+  # * ANDROID_API_LEVEL
+  # * ANDROID_APK_DEBUGGABLE
+  # * ANDROID_APK_PACKAGE
+  # * ANDROID_APK_THEME
+  # * x_BASE_TARGET
+  configure_file(
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
+      "${x_DIRECTORY}/AndroidManifest.xml"
+      @ONLY
+  )
 
   # Create the directory for the libraries
   add_custom_command(TARGET "${x_BASE_TARGET}"
