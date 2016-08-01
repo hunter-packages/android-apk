@@ -396,13 +396,16 @@ function(android_create_apk)
 
   if(unnamed_apk_target)
     set(apk_target_name "Android-Apk-${x_BASE_TARGET}-apk")
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    set_property(TARGET "${apk_target_name}" PROPERTY FOLDER "Android-Apk")
   else()
     set(apk_target_name "${x_APK_TARGET}")
   endif()
 
   add_custom_target("${apk_target_name}" DEPENDS "${x_BASE_TARGET}")
+
+  if(unnamed_apk_target)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set_property(TARGET "${apk_target_name}" PROPERTY FOLDER "Android-Apk")
+  endif()
 
   add_custom_command(
       TARGET "${apk_target_name}"
@@ -486,8 +489,6 @@ function(android_create_apk)
   if(create_install_target)
     if(unnamed_install_target)
       set(install_target_name "Android-Apk-${x_BASE_TARGET}-install")
-      set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-      set_property(TARGET "${install_target_name}" PROPERTY FOLDER "Android-Apk")
     else()
       set(install_target_name "${x_INSTALL_TARGET}")
     endif()
@@ -506,6 +507,10 @@ function(android_create_apk)
         DEPENDS
         "${apk_target_name}"
     )
+    if(unnamed_install_target)
+      set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+      set_property(TARGET "${install_target_name}" PROPERTY FOLDER "Android-Apk")
+    endif()
   endif()
 
   if(create_launch_target)
