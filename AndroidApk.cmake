@@ -388,13 +388,22 @@ function(android_create_apk)
   # This creates a separate variable for teh ANDROID_ABI_DIR omitting "with NEON"
   string(REGEX REPLACE " with NEON" "" ANDROID_ABI_DIR "${ANDROID_ABI}")
 
-  ### FIXME -------------
+  apk_find_tool("${ANDROID_ANDROID_COMMAND}" ANDROID_ANDROID_COMMAND_PATH)
+  apk_find_tool("${ANDROID_ADB_COMMAND}" ANDROID_ADB_COMMAND_PATH)
+  apk_find_tool("${ANDROID_ANT_COMMAND}" ANDROID_ANT_COMMAND_PATH)
 
   # Create apk file ready for release?
   # (signed, you have to enter a password during build, do also setup
   # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
   # FIXME: user control
   set(ANDROID_APK_RELEASE "0")
+
+  if(ANDROID_APK_RELEASE)
+    apk_find_tool("${ANDROID_JARSIGNER_COMMAND}" ANDROID_JARSIGNER_COMMAND_PATH)
+    apk_find_tool("${ANDROID_ZIPALIGN_COMMAND}" ANDROID_ZIPALIGN_COMMAND_PATH)
+  endif()
+
+  ### FIXME -------------
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(ANDROID_APK_DEBUGGABLE "true")
@@ -444,7 +453,6 @@ function(android_create_apk)
   endforeach()
 
   apk_check_not_empty(ANDROID_API_LEVEL)
-  apk_find_tool("${ANDROID_ANDROID_COMMAND}" ANDROID_ANDROID_COMMAND_PATH)
 
   # Create files:
   #   "build.xml"
@@ -497,12 +505,9 @@ function(android_create_apk)
 
   # Uninstall previous version from the device/emulator
   # (else we may get e.g. signature conflicts)
-  apk_find_tool("${ANDROID_ADB_COMMAND}" ANDROID_ADB_COMMAND_PATH)
   add_custom_command(TARGET ${x_BASE_TARGET}
       COMMAND "${ANDROID_ADB_COMMAND_PATH}" uninstall ${ANDROID_APK_PACKAGE}
   )
-
-  apk_find_tool("${ANDROID_ANT_COMMAND}" ANDROID_ANT_COMMAND_PATH)
 
   # Build the apk file
   if(ANDROID_APK_RELEASE_LOCAL)
@@ -523,7 +528,6 @@ function(android_create_apk)
     apk_check_not_empty(ANDROID_APK_SIGNER_ALIAS)
     apk_check_not_empty(ANDROID_APK_SIGNER_KEYSTORE)
 
-    apk_find_tool("${ANDROID_JARSIGNER_COMMAND}" ANDROID_JARSIGNER_COMMAND_PATH)
     # Sign the apk file
     add_custom_command(TARGET ${x_BASE_TARGET}
         COMMAND
@@ -535,7 +539,6 @@ function(android_create_apk)
         WORKING_DIRECTORY "${x_DIRECTORY}"
     )
 
-    apk_find_tool("${ANDROID_ZIPALIGN_COMMAND}" ANDROID_ZIPALIGN_COMMAND_PATH)
     # Align the apk file
     add_custom_command(TARGET ${x_BASE_TARGET}
         COMMAND
