@@ -311,44 +311,12 @@ function(android_create_apk)
     set(ANDROID_APK_THEME "")
   endif()
 
-  # Create apk file ready for release?
-  # (signed, you have to enter a password during build, do also setup
-  # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
-  # FIXME: user control
-  set(ANDROID_APK_RELEASE "0")
-
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    set(ANDROID_APK_DEBUGGABLE "true")
-    set(ANDROID_APK_RELEASE_LOCAL "0")
-  else()
-    set(ANDROID_APK_DEBUGGABLE "false")
-    set(ANDROID_APK_RELEASE_LOCAL ${ANDROID_APK_RELEASE})
-  endif()
-
-  apk_check_not_empty(_ANDROID_APK_THIS_DIRECTORY)
-
   string(COMPARE EQUAL "${x_APP_NAME}" "" no_app_name)
   if(no_app_name)
     set(APPLICATION_NAME "${x_BASE_TARGET}")
   else()
     set(APPLICATION_NAME "${x_APP_NAME}")
   endif()
-
-  # Used variables:
-  # * x_BASE_TARGET
-  configure_file(
-      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
-      "${x_DIRECTORY}/AndroidManifest.xml"
-      @ONLY
-  )
-
-  # Used variables:
-  # * APPLICATION_NAME
-  configure_file(
-      "${_ANDROID_APK_THIS_DIRECTORY}/templates/strings.xml.in"
-      "${x_DIRECTORY}/res/values/strings.xml"
-      @ONLY
-  )
 
   # Get a list of libraries to load in (e.g. "PLCore;PLMath" etc.)
   set(ANDROID_SHARED_LIBRARIES_TO_LOAD "")
@@ -389,6 +357,44 @@ function(android_create_apk)
     endif()
   endforeach()
 
+  ### FIXME -------------
+
+  # Create apk file ready for release?
+  # (signed, you have to enter a password during build, do also setup
+  # ANDROID_APK_SIGNER_KEYSTORE and ANDROID_APK_SIGNER_ALIAS
+  # FIXME: user control
+  set(ANDROID_APK_RELEASE "0")
+
+  if(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(ANDROID_APK_DEBUGGABLE "true")
+    set(ANDROID_APK_RELEASE_LOCAL "0")
+  else()
+    set(ANDROID_APK_DEBUGGABLE "false")
+    set(ANDROID_APK_RELEASE_LOCAL ${ANDROID_APK_RELEASE})
+  endif()
+
+  apk_check_not_empty(_ANDROID_APK_THIS_DIRECTORY)
+
+  # Used variables:
+  # * ANDROID_API_LEVEL
+  # * ANDROID_APK_DEBUGGABLE
+  # * ANDROID_APK_PACKAGE
+  # * ANDROID_APK_THEME
+  # * x_BASE_TARGET
+  configure_file(
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
+      "${x_DIRECTORY}/AndroidManifest.xml"
+      @ONLY
+  )
+
+  # Used variables:
+  # * APPLICATION_NAME
+  configure_file(
+      "${_ANDROID_APK_THIS_DIRECTORY}/templates/strings.xml.in"
+      "${x_DIRECTORY}/res/values/strings.xml"
+      @ONLY
+  )
+
   # Create Java file which is responsible for loading in the required shared
   # libraries (the content of "ANDROID_SHARED_LIBRARIES_TO_LOAD" is used
   # for this)
@@ -396,6 +402,7 @@ function(android_create_apk)
 
   # Used variables:
   # * ANDROID_APK_PACKAGE
+  # * ANDROID_SHARED_LIBRARIES_TO_LOAD
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/LoadLibraries.java.in"
       "${x_DIRECTORY}/src/${hierarchy}/LoadLibraries.java"
@@ -547,6 +554,8 @@ function(android_create_apk)
 
     set(apk_path "bin/${APPLICATION_NAME}-debug.apk")
   endif()
+
+  ### FIXME: -------------
 
   if(create_install_target)
     if(unnamed_install_target)
