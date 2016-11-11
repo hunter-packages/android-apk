@@ -216,6 +216,10 @@ endfunction()
 ##################################################
 
 function(android_create_apk)
+  if(ANDROID AND CMAKE_VERSION VERSION_LESS "3.7")
+    message(FATAL_ERROR "CMake version 3.7+ required")
+  endif()
+
   set(optional "")
   set(
       one
@@ -372,12 +376,7 @@ function(android_create_apk)
       @ONLY
   )
 
-  apk_check_not_empty(ANDROID_ABI)
-
-  # Special case for ANDROID_ABI == "armv7a with NEON"
-  # which results in INSTALL_FAILED_NO_MATCHING_ABIS during installation
-  # This creates a separate variable for teh ANDROID_ABI_DIR omitting "with NEON"
-  string(REGEX REPLACE " with NEON" "" ANDROID_ABI_DIR "${ANDROID_ABI}")
+  set(ANDROID_ABI_DIR "${ANDROID_NDK_ABI_NAME}")
 
   apk_find_tool("${ANDROID_ANDROID_COMMAND}" ANDROID_ANDROID_COMMAND_PATH)
   apk_find_tool("${ANDROID_ADB_COMMAND}" ANDROID_ADB_COMMAND_PATH)
