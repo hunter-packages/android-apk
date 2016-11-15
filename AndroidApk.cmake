@@ -376,7 +376,7 @@ function(android_create_apk)
       @ONLY
   )
 
-  set(ANDROID_ABI_DIR "${ANDROID_NDK_ABI_NAME}")
+  set(ANDROID_ABI_DIR "${CMAKE_ANDROID_ARCH_ABI}")
 
   apk_find_tool("${ANDROID_ANDROID_COMMAND}" ANDROID_ANDROID_COMMAND_PATH)
   apk_find_tool("${ANDROID_ADB_COMMAND}" ANDROID_ADB_COMMAND_PATH)
