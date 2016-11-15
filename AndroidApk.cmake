@@ -445,6 +445,26 @@ function(android_create_apk)
     endforeach()
   endif()
 
+  string(COMPARE EQUAL "${CMAKE_ANDROID_NDK}" "" is_empty)
+  if(is_empty)
+    message(FATAL_ERROR "CMAKE_ANDROID_NDK is empty")
+  endif()
+
+  string(COMPARE EQUAL "${CMAKE_ANDROID_ARCH}" "" is_empty)
+  if(is_empty)
+    message(FATAL_ERROR "CMAKE_ANDROID_ARCH is empty")
+  endif()
+
+  # Rejected: https://gitlab.kitware.com/cmake/cmake/merge_requests/74
+  set(
+      GDBSERVER
+      "${CMAKE_ANDROID_NDK}/prebuilt/android-${CMAKE_ANDROID_ARCH}/gdbserver/gdbserver"
+  )
+
+  if(NOT EXISTS "${GDBSERVER}")
+    message(FATAL_ERROR "gdbserver not found: ${GDBSERVER}")
+  endif()
+
   add_custom_command(
       TARGET
       "${apk_target_name}"
@@ -462,7 +482,7 @@ function(android_create_apk)
       "-DANDROID_ZIPALIGN_COMMAND_PATH=${ANDROID_ZIPALIGN_COMMAND_PATH}"
       "-DAPK_BUILD_TYPE=$<CONFIG>"
       "-DAPPLICATION_NAME=${APPLICATION_NAME}"
-      "-DCMAKE_GDBSERVER=${CMAKE_GDBSERVER}"
+      "-DGDBSERVER=${GDBSERVER}"
       "-D_ANDROID_APK_THIS_DIRECTORY=${_ANDROID_APK_THIS_DIRECTORY}"
       "-Dx_BASE_TARGET=${x_BASE_TARGET}"
       "-Dx_DIRECTORY=${x_DIRECTORY}"

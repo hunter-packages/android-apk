@@ -38,9 +38,9 @@ if(is_empty)
   message(FATAL_ERROR "APPLICATION_NAME not set")
 endif()
 
-string(COMPARE EQUAL "${CMAKE_GDBSERVER}" "" is_empty)
+string(COMPARE EQUAL "${GDBSERVER}" "" is_empty)
 if(is_empty)
-  message(FATAL_ERROR "CMAKE_GDBSERVER not set")
+  message(FATAL_ERROR "GDBSERVER not set")
 endif()
 
 string(COMPARE EQUAL "${ANDROID_ANDROID_COMMAND_PATH}" "" is_empty)
@@ -112,13 +112,13 @@ endif()
 
 # In case of debug build, do also copy gdbserver
 if(is_debug)
-  if(NOT EXISTS "${CMAKE_GDBSERVER}")
-    message(FATAL_ERROR "Not found: ${CMAKE_GDBSERVER}")
+  if(NOT EXISTS "${GDBSERVER}")
+    message(FATAL_ERROR "Not found: ${GDBSERVER}")
   endif()
   execute_process(
       COMMAND
       "${CMAKE_COMMAND}" -E copy
-      "${CMAKE_GDBSERVER}"
+      "${GDBSERVER}"
       "${x_DIRECTORY}/libs/${ANDROID_ABI_DIR}"
       WORKING_DIRECTORY "${x_DIRECTORY}"
       RESULT_VARIABLE result
