@@ -18,9 +18,9 @@ if(is_empty)
   message(FATAL_ERROR "_ANDROID_APK_THIS_DIRECTORY not set")
 endif()
 
-string(COMPARE EQUAL "${ANDROID_API_LEVEL}" "" is_empty)
+string(COMPARE EQUAL "${CMAKE_SYSTEM_VERSION}" "" is_empty)
 if(is_empty)
-  message(FATAL_ERROR "ANDROID_API_LEVEL not set")
+  message(FATAL_ERROR "CMAKE_SYSTEM_VERSION not set")
 endif()
 
 string(COMPARE EQUAL "${ANDROID_APK_PACKAGE}" "" is_empty)
@@ -78,7 +78,7 @@ else()
 endif()
 
 # Used variables:
-# * ANDROID_API_LEVEL
+# * CMAKE_SYSTEM_VERSION
 # * ANDROID_APK_DEBUGGABLE
 # * ANDROID_APK_PACKAGE
 # * ANDROID_APK_THEME
@@ -97,7 +97,7 @@ configure_file(
 execute_process(
     COMMAND
     "${ANDROID_ANDROID_COMMAND_PATH}" update project
-    -t android-${ANDROID_API_LEVEL}
+    -t android-${CMAKE_SYSTEM_VERSION}
     --name "${APPLICATION_NAME}"
     --path "${x_DIRECTORY}"
     WORKING_DIRECTORY "${x_DIRECTORY}"
