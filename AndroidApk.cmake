@@ -29,76 +29,6 @@
 
 include(CMakeParseArguments) # cmake_parse_arguments
 
-##################################################
-## Tools
-##################################################
-
-if(HUNTER_ENABLED)
-  hunter_add_package(Android-SDK)
-  hunter_add_package(Android-Build-Tools)
-
-  set(_sdk_path "${ANDROID-SDK_ROOT}/android-sdk")
-  set(_android_path "${_sdk_path}/tools/android")
-  if(NOT EXISTS "${_android_path}")
-    set(_android_path "${_sdk_path}/tools/android.bat")
-  endif()
-  set(
-      ANDROID_ANDROID_COMMAND
-      "${_android_path}"
-      CACHE STRING "'android' script from Android SDK"
-  )
-
-  set(
-      ANDROID_ADB_COMMAND
-      "${_sdk_path}/platform-tools/adb"
-      CACHE STRING "'adb' script from Android SDK"
-  )
-  set(
-      ANDROID_ANT_COMMAND
-      "ant"
-      CACHE
-      STRING
-      "'ant' command. Linux install: 'sudo apt-get install ant'"
-  )
-  set(
-      ANDROID_JARSIGNER_COMMAND
-      "jarsigner" CACHE STRING "'jarsigner' script from Android SDK"
-  )
-  set(
-      ANDROID_ZIPALIGN_COMMAND
-      "${_sdk_path}/build-tools/${HUNTER_Android-Build-Tools_VERSION}/zipalign"
-      CACHE STRING "'zipalign' script from Android SDK"
-  )
-else()
-  set(
-      ANDROID_ANDROID_COMMAND
-      "android" CACHE STRING "'android' script from Android SDK"
-  )
-  set(
-      ANDROID_ADB_COMMAND
-      "adb" CACHE STRING "'adb' script from Android SDK"
-  )
-  set(
-      ANDROID_ANT_COMMAND
-      "ant"
-      CACHE
-      STRING
-      "'ant' command. Linux install: 'sudo apt-get install ant'"
-  )
-  set(
-      ANDROID_JARSIGNER_COMMAND
-      "jarsigner" CACHE STRING "'jarsigner' script from Android SDK"
-  )
-  set(
-      ANDROID_ZIPALIGN_COMMAND
-      "zipalign" CACHE STRING "'zipalign' script from Android SDK"
-  )
-endif()
-
-##################################################
-## Variables
-##################################################
-
 # Directory this CMake file is in
 set(_ANDROID_APK_THIS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -219,6 +149,70 @@ function(android_create_apk)
   if(ANDROID AND CMAKE_VERSION VERSION_LESS "3.7")
     message(FATAL_ERROR "CMake version 3.7+ required")
   endif()
+
+  # Tools {
+  if(HUNTER_ENABLED)
+    hunter_add_package(Android-SDK)
+    hunter_add_package(Android-Build-Tools)
+
+    set(_sdk_path "${ANDROID-SDK_ROOT}/android-sdk")
+    set(_android_path "${_sdk_path}/tools/android")
+    if(NOT EXISTS "${_android_path}")
+      set(_android_path "${_sdk_path}/tools/android.bat")
+    endif()
+    set(
+        ANDROID_ANDROID_COMMAND
+        "${_android_path}"
+        CACHE STRING "'android' script from Android SDK"
+    )
+
+    set(
+        ANDROID_ADB_COMMAND
+        "${_sdk_path}/platform-tools/adb"
+        CACHE STRING "'adb' script from Android SDK"
+    )
+    set(
+        ANDROID_ANT_COMMAND
+        "ant"
+        CACHE
+        STRING
+        "'ant' command. Linux install: 'sudo apt-get install ant'"
+    )
+    set(
+        ANDROID_JARSIGNER_COMMAND
+        "jarsigner" CACHE STRING "'jarsigner' script from Android SDK"
+    )
+    set(
+        ANDROID_ZIPALIGN_COMMAND
+        "${_sdk_path}/build-tools/${HUNTER_Android-Build-Tools_VERSION}/zipalign"
+        CACHE STRING "'zipalign' script from Android SDK"
+    )
+  else()
+    set(
+        ANDROID_ANDROID_COMMAND
+        "android" CACHE STRING "'android' script from Android SDK"
+    )
+    set(
+        ANDROID_ADB_COMMAND
+        "adb" CACHE STRING "'adb' script from Android SDK"
+    )
+    set(
+        ANDROID_ANT_COMMAND
+        "ant"
+        CACHE
+        STRING
+        "'ant' command. Linux install: 'sudo apt-get install ant'"
+    )
+    set(
+        ANDROID_JARSIGNER_COMMAND
+        "jarsigner" CACHE STRING "'jarsigner' script from Android SDK"
+    )
+    set(
+        ANDROID_ZIPALIGN_COMMAND
+        "zipalign" CACHE STRING "'zipalign' script from Android SDK"
+    )
+  endif()
+  # }
 
   set(optional "")
   set(
