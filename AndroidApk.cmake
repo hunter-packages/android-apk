@@ -557,6 +557,8 @@ endfunction()
 ##   Name of the test
 ## @param COMMAND
 ##   Command to test
+## @param DEVICE_BIN_DIR
+##   Location of test binaries on device
 ##################################################
 
 function(android_add_test)
@@ -570,7 +572,8 @@ function(android_add_test)
   # Introduce:
   # * x_NAME
   # * x_COMMAND
-  cmake_parse_arguments(x "" "NAME" "COMMAND" ${ARGV})
+  # * x_DEVICE_BIN_DIR
+  cmake_parse_arguments(x "" "NAME;DEVICE_BIN_DIR" "COMMAND" ${ARGV})
   string(COMPARE NOTEQUAL "${x_UNPARSED_ARGUMENTS}" "" has_unparsed)
   if(has_unparsed)
     message(FATAL_ERROR "Unparsed: ${x_UNPARSED_ARGUMENTS}")
@@ -593,12 +596,14 @@ function(android_add_test)
   set(APP_ARGUMENTS ${x_COMMAND})
 
   # Directory on device for storing applications
-  # FIXME: user control
-  set(ANDROID_APK_APP_DESTINATION "/data/local/tmp/AndroidApk")
+  string(COMPARE EQUAL "${x_DEVICE_BIN_DIR}" "" is_empty)
+  if(is_empty)
+    set(DEVICE_BIN_DIR "/data/local/tmp/${PROJECT_NAME}/bin")
+  else()
+    set(DEVICE_BIN_DIR "${x_DEVICE_BIN_DIR}")
+  endif()
 
-  set(APP_DESTINATION "${ANDROID_APK_APP_DESTINATION}")
-  set(APP_DESTINATION "${APP_DESTINATION}/${PROJECT_NAME}/AndroidTest")
-  set(APP_DESTINATION "${APP_DESTINATION}/${x_NAME}/${app_target}")
+  set(APP_DESTINATION "${DEVICE_BIN_DIR}/${app_target}")
 
   # Use:
   # * ADB_COMMAND
