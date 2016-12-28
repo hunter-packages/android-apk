@@ -545,7 +545,8 @@ endfunction()
 ##################################################
 ## FUNCTION: android_add_test
 ##
-## Run test on device (similar to add_test)
+## Run test on device (similar to add_test). If platform is not Android just
+## add regular test.
 ##
 ## @param NAME
 ##   Name of the test
@@ -556,13 +557,6 @@ endfunction()
 ##################################################
 
 function(android_add_test)
-  if(HUNTER_ENABLED)
-    hunter_add_package(Android-SDK)
-    set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
-  else()
-    set(ADB_COMMAND "adb")
-  endif()
-
   # Introduce:
   # * x_NAME
   # * x_COMMAND
@@ -571,6 +565,18 @@ function(android_add_test)
   string(COMPARE NOTEQUAL "${x_UNPARSED_ARGUMENTS}" "" has_unparsed)
   if(has_unparsed)
     message(FATAL_ERROR "Unparsed: ${x_UNPARSED_ARGUMENTS}")
+  endif()
+
+  if(NOT ANDROID)
+    add_test(NAME ${x_NAME} COMMAND ${x_COMMAND})
+    return()
+  endif()
+
+  if(HUNTER_ENABLED)
+    hunter_add_package(Android-SDK)
+    set(ADB_COMMAND "${ANDROID-SDK_ROOT}/android-sdk/platform-tools/adb")
+  else()
+    set(ADB_COMMAND "adb")
   endif()
 
   list(GET x_COMMAND 0 app_target)
