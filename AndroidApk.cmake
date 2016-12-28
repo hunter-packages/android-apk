@@ -609,6 +609,7 @@ function(android_add_test)
   # * ADB_COMMAND
   # * APP_ARGUMENTS
   # * APP_DESTINATION
+  # * DEVICE_BIN_DIR
   configure_file(
       "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidTest.cmake.in"
       "${script_loc}"
