@@ -78,7 +78,7 @@ endfunction()
 ##
 ## Copy files from one place to another using wildcards
 ##################################################
-function(android_copy_files targetname src dest)
+function(android_copy_files targetname src dst)
   apk_check_not_empty(targetname)
   apk_check_not_empty(src)
   apk_check_not_empty(dst)
@@ -97,7 +97,7 @@ function(android_copy_files targetname src dest)
   foreach(file ${files})
     # Get source and destination file
     set(src_file "${path}/${file}")
-    set(dst_file "${dest}/${file}")
+    set(dst_file "${dst}/${file}")
 
     # Create output directory
     get_filename_component(dst_path "${dst_file}" PATH)
