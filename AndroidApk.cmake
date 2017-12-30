@@ -152,6 +152,10 @@ endfunction()
 ## @param DATA_DIRECTORY
 ##   Subdirectory within the apk asset directory to copy the "assets"-files
 ##   into (e.g. "Data")
+## @param MANIFEST_TEMPLATE
+##   Template for creating AndroidManifest.xml
+## @param ACTIVITY_LAUNCH
+##   Activity name for launching
 ##################################################
 
 function(android_create_apk)
@@ -235,6 +239,8 @@ function(android_create_apk)
       DIRECTORY
       ASSETS
       DATA_DIRECTORY
+      ACTIVITY_LAUNCH
+      MANIFEST_TEMPLATE
   )
   set(multiple LIBRARIES)
 
@@ -250,6 +256,8 @@ function(android_create_apk)
   # * x_DIRECTORY
   # * x_ASSETS
   # * x_DATA_DIRECTORY
+  # * x_MANIFEST_TEMPLATE
+  # * x_ACTIVITY_LAUNCH
   # * x_LIBRARIES
 
   string(COMPARE EQUAL "${x_UNPARSED_ARGUMENTS}" "" is_empty)
@@ -489,6 +497,7 @@ function(android_create_apk)
       "-D_ANDROID_APK_THIS_DIRECTORY=${_ANDROID_APK_THIS_DIRECTORY}"
       "-Dx_BASE_TARGET=${x_BASE_TARGET}"
       "-Dx_DIRECTORY=${x_DIRECTORY}"
+      "-Dx_MANIFEST_TEMPLATE=${x_MANIFEST_TEMPLATE}"
       -P "${_ANDROID_APK_THIS_DIRECTORY}/scripts/CreateApk.cmake"
       WORKING_DIRECTORY
       "${x_DIRECTORY}"
@@ -535,6 +544,12 @@ function(android_create_apk)
     endif()
   endif()
 
+  if("${x_ACTIVITY_LAUNCH}" STREQUAL "")
+    set(activity_launch "LoadLibraries")
+  else()
+    set(activity_launch "${x_ACTIVITY_LAUNCH}")
+  endif()
+
   if(create_launch_target)
     add_custom_target(
         "${x_LAUNCH_TARGET}"
@@ -544,7 +559,7 @@ function(android_create_apk)
         start
         -S
         -n
-        "${ANDROID_APK_PACKAGE}/${ANDROID_APK_PACKAGE}.LoadLibraries"
+        "${ANDROID_APK_PACKAGE}/${ANDROID_APK_PACKAGE}.${activity_launch}"
         DEPENDS
         "${install_target_name}"
     )

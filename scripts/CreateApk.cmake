@@ -1,7 +1,7 @@
 # Copyright (c) 2016, Ruslan Baratov
 # All rights reserved.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 
 string(COMPARE EQUAL "${APK_BUILD_TYPE}" "" is_empty)
 if(is_empty)
@@ -77,6 +77,16 @@ else()
   set(ANDROID_APK_THEME "")
 endif()
 
+if("${x_MANIFEST_TEMPLATE}" STREQUAL "")
+  set(android_manifest "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in")
+else()
+  set(android_manifest "${x_MANIFEST_TEMPLATE}")
+endif()
+
+if(NOT EXISTS "${android_manifest}")
+  message(FATAL_ERROR "AndroidManifest template not found: ${android_manifest}")
+endif()
+
 # Used variables:
 # * CMAKE_SYSTEM_VERSION
 # * ANDROID_APK_DEBUGGABLE
@@ -84,7 +94,7 @@ endif()
 # * ANDROID_APK_THEME
 # * x_BASE_TARGET
 configure_file(
-    "${_ANDROID_APK_THIS_DIRECTORY}/templates/AndroidManifest.xml.in"
+    "${android_manifest}"
     "${x_DIRECTORY}/AndroidManifest.xml"
     @ONLY
 )
