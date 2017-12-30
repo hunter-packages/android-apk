@@ -93,6 +93,15 @@ function(android_copy_files targetname src dst)
   # Find files
   file(GLOB_RECURSE files RELATIVE "${path}" "${src}")
 
+  list(LENGTH files number_of_files)
+  if(number_of_files EQUAL "0")
+    message(
+        FATAL_ERROR
+        "Not files found by pattern '${path}'. Wildcard is missing?"
+        " Pattern example: '/home/user/myassets/*'"
+    )
+  endif()
+
   # Find files
   foreach(file ${files})
     # Get source and destination file
